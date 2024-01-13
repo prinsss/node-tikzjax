@@ -13,6 +13,11 @@ async function example1() {
 
   const svg = await tex2svg(source, {
     showConsole: true,
+    // Prepend the preamble to the source.
+    // \usepackage{pgfplots}\usepackage[intlimits]{amsmath}\usetikzlibrary{arrows.meta,calc}% comment
+    texPackages: { pgfplots: '', amsmath: 'intlimits' },
+    tikzLibraries: 'arrows.meta,calc',
+    addToPreamble: '% comment',
   });
 
   console.log(svg);

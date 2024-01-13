@@ -129,7 +129,8 @@ export function getTexPreamble(options: TeXOptions = {}) {
     }, '') +
     (options.tikzLibraries ? `\\usetikzlibrary{${options.tikzLibraries}}` : '') +
     (options.addToPreamble || '') +
-    (options.tikzOptions ? `[${options.tikzOptions}]` : '');
+    (options.tikzOptions ? `[${options.tikzOptions}]` : '') +
+    '\n';
 
   return preamble;
 }
