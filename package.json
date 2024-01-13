@@ -1,0 +1,30 @@
+{
+  "name": "node-tikzjax",
+  "description": "A port of TikZJax runs on pure Node.js and WebAssembly.",
+  "version": "1.0.0",
+  "author": "prin <hi@prin.studio>",
+  "license": "LPPL-1.3c",
+  "homepage": "https://github.com/prinsss/node-tikzjax",
+  "bugs": "https://github.com/prinsss/node-tikzjax/issues",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "tex"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prinsss/dvi2html": "^0.0.1",
+    "memfs": "^4.6.0",
+    "tar-fs": "^3.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/tar-fs": "^2.0.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
