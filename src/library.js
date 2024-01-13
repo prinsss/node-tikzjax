@@ -124,7 +124,9 @@ function openSync(filename, mode)
 				setTimeout(async () => {
 					// Attempt to load the file.
 					try {
-						let data = await fileLoader(`tex_files/${filename}.gz`);
+						// PATCHED:
+						// let data = await fileLoader(`tex_files/${filename}.gz`);
+						let data = await fileLoader(`/tex_files/${filename}`);
 						filesystem[filename] = data;
 					} catch (e) {}
 					startRewind();

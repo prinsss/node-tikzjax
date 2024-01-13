@@ -1,26 +1,18 @@
-import { readFileSync, writeFileSync } from 'fs';
-import { load, tex } from './bootstrap';
-import { dvi2svg } from './dvi2svg';
+import { TeXOptions, load, tex } from './bootstrap';
+import { SvgOptions, dvi2svg } from './dvi2svg';
 
-async function main() {
+export * from './bootstrap';
+export * from './dvi2svg';
+
+/**
+ * Compiles TeX source code to SVG image.
+ */
+async function tex2svg(input: string, options?: TeXOptions & SvgOptions) {
   await load();
 
-//   const input = `
-// \\begin{document}
-// \\begin{tikzpicture}
-//   \\draw (0,0) circle (1in);
-// \\end{tikzpicture}
-// \\end{document}`;
-
-//   await tex(input);
-
-  const input = readFileSync('./demo/sample.tex', 'utf8');
-  const dvi = await tex(input);
-
-  writeFileSync('./demo/sample.dvi', dvi);
-
-  const svg = await dvi2svg(dvi);
-  writeFileSync('./demo/sample.svg', svg);
+  const dvi = await tex(input, options);
+  const svg = await dvi2svg(dvi, options);
+  return svg;
 }
 
-main();
+export default tex2svg;

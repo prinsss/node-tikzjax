@@ -50,13 +50,36 @@ export async function load() {
 }
 
 /**
+ * For detailed explanation of available options, see
+ * https://github.com/artisticat1/tikzjax/tree/ww-modifications#options
+ */
+export type TeXOptions = {
+  showConsole?: boolean;
+  texPackages?: Record<string, string>;
+  tikzLibraries?: string;
+  tikzOptions?: string;
+  addToPreamble?: string;
+};
+
+/**
  * Run the TeX engine to compile TeX source code.
  *
  * @param input The TeX source code.
  * @returns The generated DVI file.
  */
-export async function tex(input: string) {
-  library.setShowConsole();
+export async function tex(input: string, options: TeXOptions = {}) {
+  // Set up the tex input file.
+  const preamble = getTexPreamble(options);
+  input = preamble + input;
+
+  if (options.showConsole) {
+    library.setShowConsole();
+
+    console.log('TikZJax: Rendering input:');
+    console.log(input);
+  }
+
+  // Write the tex input file into the memory filesystem.
   library.writeFileSync('input.tex', Buffer.from(input));
 
   // Copy the coredump into the memory.
@@ -78,11 +101,37 @@ export async function tex(input: string) {
 
   // Execute TeX and extract the generated DVI file.
   await library.executeAsync(wasm.instance.exports);
-  const dvi = Buffer.from(library.readFileSync('input.dvi'));
 
-  // Clean up the library for the next run.
-  library.deleteEverything();
-  return dvi;
+  try {
+    const dvi = Buffer.from(library.readFileSync('input.dvi'));
+
+    // Clean up the library for the next run.
+    library.deleteEverything();
+
+    return dvi;
+  } catch (e) {
+    library.deleteEverything();
+    throw new Error('TeX engine render failed. Set `options.showConsole` to `true` to see logs.');
+  }
+}
+
+/**
+ * Get preamble of the TeX input file.
+ */
+export function getTexPreamble(options: TeXOptions = {}) {
+  let texPackages = options.texPackages ?? {};
+
+  const preamble =
+    Object.entries(texPackages).reduce((usePackageString, thisPackage) => {
+      usePackageString +=
+        '\\usepackage' + (thisPackage[1] ? `[${thisPackage[1]}]` : '') + `{${thisPackage[0]}}`;
+      return usePackageString;
+    }, '') +
+    (options.tikzLibraries ? `\\usetikzlibrary{${options.tikzLibraries}}` : '') +
+    (options.addToPreamble || '') +
+    (options.tikzOptions ? `[${options.tikzOptions}]` : '');
+
+  return preamble;
 }
 
 /**
