@@ -1,5 +1,6 @@
 import { dvi2html } from '@prinsss/dvi2html';
 import { JSDOM } from 'jsdom';
+import { optimize } from 'svgo';
 
 export type SvgOptions = {
   /**
@@ -15,6 +16,13 @@ export type SvgOptions = {
    * Default: `https://tikzjax.com/v1/fonts.css`
    */
   fontCssUrl?: string;
+
+  /**
+   * Don't use SVGO to optimize the SVG.
+   *
+   * Default: `false`
+   */
+  disableOptimize?: boolean;
 };
 
 export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
@@ -52,5 +60,25 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
     svg.prepend(defs);
   }
 
-  return svg.outerHTML;
+  if (options.disableOptimize) {
+    return svg.outerHTML;
+  }
+
+  const optimizedSvg = optimize(svg.outerHTML, {
+    plugins: [
+      {
+        name: 'preset-default',
+        params: {
+          overrides: {
+            // Don't use the "cleanupIDs" plugin
+            // To avoid problems with duplicate IDs ("a", "b", ...)
+            // when inlining multiple svgs with IDs
+            cleanupIds: false,
+          },
+        },
+      },
+    ],
+  });
+
+  return optimizedSvg.data;
 }
