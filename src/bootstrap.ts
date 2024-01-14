@@ -49,15 +49,42 @@ export async function load() {
   }
 }
 
-/**
- * For detailed explanation of available options, see
- * https://github.com/artisticat1/tikzjax/tree/ww-modifications#options
- */
 export type TeXOptions = {
+  /**
+   * Print log of TeX engine to console. Default: `false`
+   */
   showConsole?: boolean;
+
+  /**
+   * Additional TeX packages to load. Default: `{}`
+   *
+   * @example
+   * ```js
+   * // => \usepackage{pgfplots}\usepackage[intlimits]{amsmath}
+   * texPackages: { pgfplots: '', amsmath: 'intlimits' },
+   * ```
+   */
   texPackages?: Record<string, string>;
+
+  /**
+   * Additional TikZ libraries to load. Default: `''`
+   *
+   * @example
+   * ```js
+   * // => \usetikzlibrary{arrows.meta,calc}
+   * tikzLibraries: 'arrows.meta,calc',
+   * ```
+   */
   tikzLibraries?: string;
+
+  /**
+   * Additional options to pass to the TikZ package. Default: `''`
+   */
   tikzOptions?: string;
+
+  /**
+   * Additional source code to add to the preamble of input. Default: `''`
+   */
   addToPreamble?: string;
 };
 

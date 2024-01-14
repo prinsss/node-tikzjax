@@ -1,30 +1,33 @@
+import { createHash } from 'crypto';
 import { dvi2html } from '@prinsss/dvi2html';
 import { JSDOM } from 'jsdom';
 import { optimize } from 'svgo';
 
 export type SvgOptions = {
   /**
-   * Whether to embed the font CSS file in the SVG.
-   *
-   * Default: `false`
+   * Whether to embed the font CSS file in the SVG. Default: `false`
    */
   embedFontCss?: boolean;
 
   /**
    * The URL of the font CSS file to embed.
-   *
    * Default: `https://tikzjax.com/v1/fonts.css`
    */
   fontCssUrl?: string;
 
   /**
-   * Don't use SVGO to optimize the SVG.
-   *
-   * Default: `false`
+   * Don't use SVGO to optimize the SVG. Default: `false`
    */
   disableOptimize?: boolean;
 };
 
+/**
+ * Converts a DVI file to an SVG string.
+ *
+ * @param dvi The buffer containing the DVI file.
+ * @param options The options.
+ * @returns The SVG string.
+ */
 export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
   let html = '';
 
@@ -41,6 +44,19 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
       html = html + chunk.toString();
     },
   });
+
+  // Patch: Assign unique IDs to SVG elements to avoid conflicts when inlining multiple SVGs.
+  const ids = html.match(/\bid="pgf[^"]*"/g);
+  if (ids) {
+    // Sort the ids from longest to shortest.
+    ids.sort((a, b) => b.length - a.length);
+    const hash = hashCode(html);
+
+    for (const id of ids) {
+      const pgfIdString = id.replace(/id="pgf(.*)"/, '$1');
+      html = html.replaceAll('pgf' + pgfIdString, `pgf${hash}${pgfIdString}`);
+    }
+  }
 
   // Patch: Fixes symbols stored in the SOFT HYPHEN character (e.g. \Omega, \otimes) not being rendered
   // Replaces soft hyphens with ¬
@@ -81,4 +97,16 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
   });
 
   return optimizedSvg.data;
+}
+
+/**
+ * A helper function to generate a unique ID for each SVG element.
+ *
+ * @param str The string to hash.
+ * @returns The hash of the string.
+ */
+export function hashCode(str: string) {
+  const md5sum = createHash('md5');
+  md5sum.update(str);
+  return md5sum.digest('hex');
 }
