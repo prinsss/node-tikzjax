@@ -11,7 +11,7 @@ export type SvgOptions = {
 
   /**
    * The URL of the font CSS file to embed.
-   * Default: `https://tikzjax.com/v1/fonts.css`
+   * Default: `https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css`
    */
   fontCssUrl?: string;
 
@@ -70,7 +70,8 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
     const defs = document.createElement('defs');
     const style = document.createElement('style');
 
-    const fontCssUrl = options.fontCssUrl ?? 'https://tikzjax.com/v1/fonts.css';
+    const fontCssUrl =
+      options.fontCssUrl ?? 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css';
     style.textContent = `@import url('${fontCssUrl}');`;
     defs.appendChild(style);
     svg.prepend(defs);

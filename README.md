@@ -84,8 +84,8 @@ const svg = await tex2svg(source, {
   // Add `<defs><style>@import url('fonts.css');</style></defs>` to SVG. Default: false.
   // This could be useful if you want to embed the SVG in a HTML file.
   embedFontCss: true,
-  // URL of the font CSS file. Default: 'https://tikzjax.com/v1/fonts.css'.
-  fontCssUrl: 'https://tikzjax.com/v1/fonts.css',
+  // URL of the font CSS file. Default: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css'.
+  fontCssUrl: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css',
   // Disable SVG optimization with SVGO. Default: false.
   disableOptimize: false,
 });
@@ -116,7 +116,7 @@ writeFileSync('sample.dvi', dvi);
 // Render DVI to SVG.
 const svg = await dvi2svg(dvi, {
   embedFontCss: true,
-  fontCssUrl: 'https://tikzjax.com/v1/fonts.css',
+  fontCssUrl: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css',
   disableOptimize: false,
 });
 
