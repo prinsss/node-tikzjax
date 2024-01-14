@@ -1,7 +1,7 @@
 {
   "name": "node-tikzjax",
   "description": "A port of TikZJax runs on pure Node.js and WebAssembly.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "prin <hi@prin.studio>",
   "license": "LPPL-1.3c",
   "homepage": "https://github.com/prinsss/node-tikzjax",
@@ -9,6 +9,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
+    "css",
     "dist",
     "tex"
   ],
