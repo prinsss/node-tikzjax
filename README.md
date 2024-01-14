@@ -134,6 +134,8 @@ Prebuilt WebAssembly binaries and supporting files are [downloaded](download.sh)
 
 A fork of [artisticat1/dvi2html#ww-modifications](https://github.com/artisticat1/dvi2html/tree/ww-modifications) is used to convert DVI to SVG.
 
+The BaKoMa fonts shipped with this package are licensed under the [BaKoMa Fonts Licence](css/bakoma/LICENCE).
+
 Thanks to all the authors for their great work!
 
 ## License

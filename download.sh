@@ -29,3 +29,9 @@ TZ=UTC0 tar \
 
 cd ../../
 rm -rf ./dist
+
+mkdir -p css/bakoma
+curl -L -O https://mirrors.ctan.org/fonts/cm/ps-type1/bakoma.zip
+unzip -d css/bakoma -j bakoma.zip 'bakoma/LICENCE'
+unzip -d css/bakoma/ttf -j bakoma.zip 'bakoma/ttf/*'
+rm bakoma.zip
