@@ -35,3 +35,6 @@ curl -L -O https://mirrors.ctan.org/fonts/cm/ps-type1/bakoma.zip
 unzip -d css/bakoma -j bakoma.zip 'bakoma/LICENCE'
 unzip -d css/bakoma/ttf -j bakoma.zip 'bakoma/ttf/*'
 rm bakoma.zip
+
+# https://github.com/artisticat1/tikzjax/commit/ba892f23a2d280d018681a4f88b39f5a8648c7c7
+fontforge -lang=py -script patch-fonts.py
