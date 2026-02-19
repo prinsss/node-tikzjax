@@ -64,5 +64,3 @@ bundle
 # Custom files
 tikzjax
 demo/output
-.svelte-kit
-build

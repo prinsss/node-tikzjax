@@ -1,0 +1,23 @@
+{
+  "name": "isomorphic-tikzjax-demo",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "isomorphic-tikzjax": "^0.1.1"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.52.2",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "svelte": "^5.53.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1",
+    "vite-plugin-node-polyfills": "^0.25.0"
+  }
+}
