@@ -4,18 +4,13 @@
     "skipLibCheck": true,
     "target": "ESNext",
     "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
     "isolatedModules": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "moduleResolution": "Node",
-    "module": "CommonJS",
+    "moduleResolution": "bundler",
+    "module": "ESNext",
     "outDir": "dist",
-    "sourceMap": false,
-    "declaration": true,
-    "declarationMap": false,
     "lib": ["ESNext", "DOM"]
   },
-  "include": ["src"],
+  "include": ["src", "rollup.config.ts"]
 }

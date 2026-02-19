@@ -1,7 +1,6 @@
-import { createHash } from 'crypto';
+import md5 from 'md5';
+import { Buffer } from 'buffer';
 import { dvi2html } from '@prinsss/dvi2html';
-import { JSDOM } from 'jsdom';
-import { optimize } from 'svgo';
 
 export type SvgOptions = {
   /**
@@ -11,7 +10,7 @@ export type SvgOptions = {
 
   /**
    * The URL of the font CSS file to embed.
-   * Default: `https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css`
+   * Default: `https://cdn.jsdelivr.net/npm/isomorphic-tikzjax@latest/css/fonts.css`
    */
   fontCssUrl?: string;
 
@@ -36,9 +35,6 @@ export type SvgOptions = {
  */
 export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
   let html = '';
-
-  const dom = new JSDOM(`<!DOCTYPE html>`);
-  const document = dom.window.document;
 
   async function* streamBuffer() {
     yield Buffer.from(dvi);
@@ -70,12 +66,13 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
 
   // JSDOM may fail to parse the generated SVG if the graph is too complex.
   // In this case, we can skip the sanitization step and return the raw SVG.
-  // See: https://github.com/prinsss/node-tikzjax/issues/3
+  // See: https://github.com/prinsss/isomorphic-tikzjax/issues/3
   if (options.disableSanitize) {
     return html;
   }
 
   // Fix errors in the generated HTML.
+  const document = await getDocument();
   const container = document.createRange().createContextualFragment(html);
   const svg = container.querySelector('svg')!;
 
@@ -84,7 +81,7 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
     const style = document.createElement('style');
 
     const fontCssUrl =
-      options.fontCssUrl ?? 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css';
+      options.fontCssUrl ?? 'https://cdn.jsdelivr.net/npm/isomorphic-tikzjax@latest/css/fonts.css';
     style.textContent = `@import url('${fontCssUrl}');`;
     defs.appendChild(style);
     svg.prepend(defs);
@@ -94,6 +91,12 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
     return svg.outerHTML;
   }
 
+  // SVGO is now only used in server side.
+  if (typeof window !== 'undefined') {
+    return svg.outerHTML;
+  }
+
+  const { optimize } = await import('svgo');
   const optimizedSvg = optimize(svg.outerHTML, {
     plugins: [
       {
@@ -119,8 +122,18 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
  * @param str The string to hash.
  * @returns The hash of the string.
  */
-export function hashCode(str: string) {
-  const md5sum = createHash('md5');
-  md5sum.update(str);
-  return md5sum.digest('hex');
+export function hashCode(str: string): string {
+  return md5(str);
+}
+
+/**
+ * Get a DOM document, with isomorphic support for both browser and Node.js environments.
+ */
+async function getDocument(): Promise<Document> {
+  if (typeof window !== 'undefined') {
+    return window.document;
+  }
+  const { JSDOM } = await import('jsdom');
+  const dom = new JSDOM(`<!DOCTYPE html>`);
+  return dom.window.document;
 }

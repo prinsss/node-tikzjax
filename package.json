@@ -1,33 +1,58 @@
 {
-  "name": "node-tikzjax",
-  "description": "A port of TikZJax runs on pure Node.js and WebAssembly.",
-  "version": "1.0.5",
+  "name": "isomorphic-tikzjax",
+  "description": "Render TikZ diagrams to SVG in both Node.js and browser environments.",
+  "version": "0.1.0",
   "author": "prin <hi@prin.studio>",
   "license": "LPPL-1.3c",
   "homepage": "https://github.com/prinsss/node-tikzjax",
   "bugs": "https://github.com/prinsss/node-tikzjax/issues",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/node.cjs",
+  "module": "./dist/node.js",
+  "browser": "./dist/browser.js",
+  "types": "./dist/node.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "types": "./dist/node.d.ts",
+        "import": "./dist/node.js",
+        "require": "./dist/node.cjs"
+      },
+      "browser": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "default": "./dist/node.js"
+    }
+  },
   "files": [
     "css",
     "dist",
     "tex"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rollup --config rollup.config.ts --configPlugin typescript && tsc -p tsconfig.build.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@prinsss/dvi2html": "^0.0.1",
     "jsdom": "^23.2.0",
+    "md5": "^2.3.0",
     "memfs": "^4.6.0",
+    "pako": "^2.0.2",
     "svgo": "^3.2.0",
     "tar-fs": "^3.0.4"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/jsdom": "^21.1.6",
+    "@types/md5": "^2.3.5",
     "@types/node": "^20.11.0",
+    "@types/pako": "^2.0.3",
     "@types/tar-fs": "^2.0.4",
+    "rollup": "^4.0.0",
+    "rollup-plugin-node-externals": "^8.1.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }

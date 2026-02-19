@@ -1,13 +1,13 @@
-# Node-TikZJax
+# Isomorphic-TikZJax
 
-A port of [TikZJax](https://tikzjax.com) runs on pure Node.js and WebAssembly.
+A port of [TikZJax](https://tikzjax.com) runs on pure Node.js and Browser with WebAssembly.
 
-Node-TikZJax lets you render LaTeX and TikZ diagrams to SVG images without the need to install LaTeX toolchain to the environment. You can render graphs, figures, circuits, chemical diagrams, commutative diagrams, and more.
+Isomorphic-TikZJax lets you render LaTeX and TikZ diagrams to SVG images without the need to install LaTeX toolchain to the environment. You can render graphs, figures, circuits, chemical diagrams, commutative diagrams, and more.
 
 ## Installation
 
 ```bash
-npm install node-tikzjax
+npm install isomorphic-tikzjax
 ```
 
 ## Examples
@@ -25,7 +25,7 @@ The example TeX source code is taken from [obsidian-tikzjax](https://github.com/
 Basic usage:
 
 ```typescript
-import tex2svg from 'node-tikzjax';
+import tex2svg from 'isomorphic-tikzjax';
 
 const source = `\\begin{document}
 \\begin{tikzpicture}
@@ -35,6 +35,9 @@ const source = `\\begin{document}
 
 const svg = await tex2svg(source);
 ```
+
+> [!NOTE]
+> When used in browser environment, make sure you have polyfilled Node's `buffer` module.
 
 Which generates the following SVG:
 
@@ -63,7 +66,7 @@ The following packages are available in `\usepackage{}`:
 - tikz-3dplot
 
 > [!NOTE]
-> Don't run multiple instances of `node-tikzjax` at the same time. This may cause unexpected results.
+> Don't run multiple instances of `isomorphic-tikzjax` at the same time. This may cause unexpected results.
 
 ## Advanced Usage
 
@@ -84,31 +87,42 @@ const svg = await tex2svg(source, {
   // Add `<defs><style>@import url('fonts.css');</style></defs>` to SVG. Default: false.
   // This could be useful if you want to embed the SVG in a HTML file.
   embedFontCss: true,
-  // URL of the font CSS file. Default: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css'.
-  fontCssUrl: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css',
+  // URL of the font CSS file. Default: 'https://cdn.jsdelivr.net/npm/isomorphic-tikzjax@latest/css/fonts.css'.
+  fontCssUrl: 'https://cdn.jsdelivr.net/npm/isomorphic-tikzjax@latest/css/fonts.css',
   // Disable SVG optimization with SVGO. Default: false.
   disableOptimize: false,
+  // Don't use JSDOM to sanitize the SVG. Always return the raw SVG. Default: `false`
+  // When turned on, the `embedFontCss` and `disableOptimize` options will be ignored.
+  disableSanitize: false,
 });
 ```
 
 You can also separate the TeX rendering and DVI to SVG conversion steps:
 
 ```typescript
-import { load, tex, dvi2svg } from 'node-tikzjax';
+import { NodeResourceLoader, tex, dvi2svg } from 'isomorphic-tikzjax';
 
 // Load the WebAssembly module and necessary files.
-await load();
+const loader = new NodeResourceLoader();
+// const loader = new BrowserResourceLoader(baseUrl);
+
+// Preload resources (optional).
+await Promise.all([loader.loadCoredump(), loader.loadBytecode()]);
 
 // Read TeX source from a file.
 const input = readFileSync('sample.tex', 'utf8');
 
 // Render TeX source to DVI.
-const dvi = await tex(input, {
-  showConsole: true,
-  texPackages: { pgfplots: '', amsmath: 'intlimits' },
-  tikzLibraries: 'arrows.meta,calc',
-  addToPreamble: '% comment',
-});
+const dvi = await tex(
+  input,
+  {
+    showConsole: true,
+    texPackages: { pgfplots: '', amsmath: 'intlimits' },
+    tikzLibraries: 'arrows.meta,calc',
+    addToPreamble: '% comment',
+  },
+  loader
+);
 
 // Output generated DVI to a file.
 writeFileSync('sample.dvi', dvi);
@@ -116,7 +130,7 @@ writeFileSync('sample.dvi', dvi);
 // Render DVI to SVG.
 const svg = await dvi2svg(dvi, {
   embedFontCss: true,
-  fontCssUrl: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css',
+  fontCssUrl: 'https://cdn.jsdelivr.net/npm/isomorphic-tikzjax@latest/css/fonts.css',
   disableOptimize: false,
 });
 

@@ -1,52 +1,27 @@
-import { createGunzip } from 'zlib';
-import { createReadStream } from 'fs';
-import { extract } from 'tar-fs';
-import { IFs, Volume, createFsFromVolume } from 'memfs';
-import { join } from 'path';
-import { Readable } from 'stream';
-import * as library from './library';
-
-declare module 'tar-fs' {
-  interface ExtractOptions {
-    fs?: IFs;
-  }
-}
-
-// The cached unzipped data of file `core.dump.gz`.
-let coredump: Uint8Array;
-
-// The cached unzipped data of file `tex.wasm.gz`.
-let bytecode: Uint8Array;
-
-// The memory filesystem that stores the TeX files extracted from `tex_files.tar.gz`.
-let memfs: IFs;
-
-// The directory where the TeX files are located (core.dump.gz, tex.wasm.gz, tex_files.tar.gz).
-const TEX_DIR = join(__dirname, '../tex');
-
-// Paths of the TeX files.
-const COREDUMP_PATH = join(TEX_DIR, 'core.dump.gz');
-const BYTECODE_PATH = join(TEX_DIR, 'tex.wasm.gz');
-const TEX_FILES_PATH = join(TEX_DIR, 'tex_files.tar.gz');
-const TEX_FILES_EXTRACTED_PATH = join('/', 'tex_files');
+import { Buffer } from 'buffer';
+import * as library from './library.js';
 
 /**
- * Load necessary files into memory.
+ * Interface for loading TeX resources.
+ *
+ * Implement this for each environment (Node.js, browser) to provide
+ * the core dump, WASM bytecode, and TeX files.
  */
-export async function load() {
-  if (!coredump) {
-    const stream = createReadStream(COREDUMP_PATH).pipe(createGunzip());
-    coredump = await stream2buffer(stream);
-  }
+export interface ResourceLoader {
+  /**
+   * Load the decompressed core dump (core.dump.gz contents).
+   */
+  loadCoredump(): Promise<Uint8Array>;
 
-  if (!bytecode) {
-    const stream = createReadStream(BYTECODE_PATH).pipe(createGunzip());
-    bytecode = await stream2buffer(stream);
-  }
+  /**
+   * Load the decompressed WASM bytecode (tex.wasm.gz contents).
+   */
+  loadBytecode(): Promise<Uint8Array>;
 
-  if (!memfs) {
-    memfs = await extractTexFilesToMemory();
-  }
+  /**
+   * Load a single TeX file by its path (e.g. `/tex_files/pgfplots.code.tex`).
+   */
+  loadTexFile(name: string): Promise<Uint8Array>;
 }
 
 export type TeXOptions = {
@@ -94,7 +69,13 @@ export type TeXOptions = {
  * @param input The TeX source code.
  * @returns The generated DVI file.
  */
-export async function tex(input: string, options: TeXOptions = {}) {
+export async function tex(
+  input: string,
+  options: TeXOptions = {},
+  loader: ResourceLoader,
+): Promise<Buffer> {
+  const [coredump, bytecode] = await Promise.all([loader.loadCoredump(), loader.loadBytecode()]);
+
   // Set up the tex input file.
   const preamble = getTexPreamble(options);
   input = preamble + input;
@@ -117,17 +98,18 @@ export async function tex(input: string, options: TeXOptions = {}) {
   library.setMemory(memory.buffer);
   library.setInput(' input.tex \n\\end\n');
 
-  // Set the file loader to read files from the memory filesystem.
-  library.setFileLoader(readTexFileFromMemory);
+  // Set the file loader to read files from the resource loader.
+  library.setFileLoader((name: string) => loader.loadTexFile(name));
 
   // Set up the WebAssembly TeX engine.
-  const wasm = await WebAssembly.instantiate(bytecode, {
+  const wasmModule = await WebAssembly.compile(bytecode as unknown as BufferSource);
+  const wasmInstance = await WebAssembly.instantiate(wasmModule, {
     library: library,
     env: { memory: memory },
   });
 
   // Execute TeX and extract the generated DVI file.
-  await library.executeAsync(wasm.instance.exports);
+  await library.executeAsync(wasmInstance.exports);
 
   try {
     const dvi = Buffer.from(library.readFileSync('input.dvi'));
@@ -160,62 +142,4 @@ export function getTexPreamble(options: TeXOptions = {}) {
     '\n';
 
   return preamble;
-}
-
-/**
- * Dump the memory filesystem for debug.
- *
- * @example
- * ```js
- * import { toTreeSync } from 'memfs/lib/print';
- * console.log(toTreeSync(dumpMemfs()));
- * ```
- */
-export function dumpMemfs() {
-  return memfs;
-}
-
-/**
- * Extract files from `tex_files.tar.gz` into a memory filesystem.
- * The tarball contains files needed by the TeX engine, such as `pgfplots.code.tex`.
- */
-async function extractTexFilesToMemory() {
-  const volume = new Volume();
-  const fs = createFsFromVolume(volume);
-
-  fs.mkdirSync('/lib');
-
-  const stream = createReadStream(TEX_FILES_PATH).pipe(createGunzip()).pipe(
-    extract(TEX_FILES_EXTRACTED_PATH, {
-      fs,
-    })
-  );
-
-  await new Promise((resolve, reject) => {
-    stream.on('finish', resolve);
-    stream.on('error', reject);
-  });
-
-  return fs;
-}
-
-/**
- * Read a file from the memory filesystem.
- */
-async function readTexFileFromMemory(name: string) {
-  const buffer = memfs.readFileSync(name) as Buffer;
-  return buffer;
-}
-
-/**
- * Convert a stream to a buffer.
- */
-async function stream2buffer(stream: Readable): Promise<Buffer> {
-  return new Promise<Buffer>((resolve, reject) => {
-    const buf: Buffer[] = [];
-
-    stream.on('data', (chunk) => buf.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(buf)));
-    stream.on('error', (err) => reject(err));
-  });
 }

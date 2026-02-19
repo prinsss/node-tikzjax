@@ -1,7 +1,6 @@
 import { join } from 'path';
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { toTreeSync } from 'memfs/lib/print';
-import tex2svg, { dumpMemfs, load, tex, dvi2svg } from '../src';
+import tex2svg, { NodeResourceLoader, tex, dvi2svg } from '../dist/node.js';
 
 // A simplest example.
 async function example1() {
@@ -25,8 +24,9 @@ async function example1() {
 
 // A more complicated example.
 async function example2() {
-  await load();
-  console.log(toTreeSync(dumpMemfs()));
+  const loader = new NodeResourceLoader();
+
+  await Promise.all([loader.loadCoredump(), loader.loadBytecode()]);
 
   const files = [
     'sample1.tex',
@@ -42,7 +42,7 @@ async function example2() {
   for (const file of files) {
     const input = readFileSync(join('./demo/input', file), 'utf8');
     console.log('Processing:', file);
-    const dvi = await tex(input);
+    const dvi = await tex(input, {}, loader);
 
     // writeFileSync('./demo/sample.dvi', dvi);
     const svg = await dvi2svg(dvi, {
