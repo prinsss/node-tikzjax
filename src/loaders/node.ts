@@ -32,6 +32,10 @@ export class NodeResourceLoader implements ResourceLoader {
     this.texDir = texDir ?? resolveTexDir();
   }
 
+  async preload(): Promise<void> {
+    await Promise.all([this.loadCoredump(), this.loadBytecode()]);
+  }
+
   async loadCoredump(): Promise<Uint8Array> {
     if (!this.coredump) {
       const stream = createReadStream(join(this.texDir, 'core.dump.gz')).pipe(createGunzip());

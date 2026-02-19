@@ -14,6 +14,10 @@ export class BrowserResourceLoader implements ResourceLoader {
     this.baseUrl = baseUrl.replace(/\/$/, ''); // strip trailing slash
   }
 
+  async preload(): Promise<void> {
+    await Promise.all([this.loadCoredump(), this.loadBytecode()]);
+  }
+
   async loadCoredump(): Promise<Uint8Array> {
     if (!this.coredump) {
       this.coredump = await fetchAndDecompress(`${this.baseUrl}/core.dump.gz`);

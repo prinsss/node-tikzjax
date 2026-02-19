@@ -100,14 +100,15 @@ const svg = await tex2svg(source, {
 You can also separate the TeX rendering and DVI to SVG conversion steps:
 
 ```typescript
-import { NodeResourceLoader, tex, dvi2svg } from 'isomorphic-tikzjax';
+import { getResourceLoader, tex, dvi2svg } from 'isomorphic-tikzjax';
 
 // Load the WebAssembly module and necessary files.
-const loader = new NodeResourceLoader();
+const loader = getResourceLoader();
+// const loader = new NodeResourceLoader(baseDir);
 // const loader = new BrowserResourceLoader(baseUrl);
 
 // Preload resources (optional).
-await Promise.all([loader.loadCoredump(), loader.loadBytecode()]);
+await loader.preload();
 
 // Read TeX source from a file.
 const input = readFileSync('sample.tex', 'utf8');

@@ -23,7 +23,7 @@ export type BrowserOptions = {
 
 let loader: BrowserResourceLoader | null = null;
 
-function getResourceLoader(options?: BrowserOptions): BrowserResourceLoader {
+export function getResourceLoader(options?: BrowserOptions): BrowserResourceLoader {
   const baseUrl = options?.texResourcesUrl ?? DEFAULT_TEX_URL;
 
   if (!options?.texResourcesUrl) {

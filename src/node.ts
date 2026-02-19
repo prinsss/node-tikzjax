@@ -21,7 +21,7 @@ export type NodeOptions = {
 
 let loader: NodeResourceLoader | null = null;
 
-function getResourceLoader(options?: NodeOptions): NodeResourceLoader {
+export function getResourceLoader(options?: NodeOptions): NodeResourceLoader {
   const texDir = options?.texResourcesDir;
 
   if (!texDir) {

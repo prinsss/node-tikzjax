@@ -1,7 +1,7 @@
 {
   "name": "isomorphic-tikzjax",
   "description": "Render TikZ diagrams to SVG in both Node.js and browser environments.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "prin <hi@prin.studio>",
   "license": "LPPL-1.3c",
   "homepage": "https://github.com/prinsss/node-tikzjax",

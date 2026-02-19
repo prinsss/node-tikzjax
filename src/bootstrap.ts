@@ -22,6 +22,11 @@ export interface ResourceLoader {
    * Load a single TeX file by its path (e.g. `/tex_files/pgfplots.code.tex`).
    */
   loadTexFile(name: string): Promise<Uint8Array>;
+
+  /**
+   * Preload all necessary resources.
+   */
+  preload(): Promise<void>;
 }
 
 export type TeXOptions = {
