@@ -19,6 +19,12 @@ export type SvgOptions = {
    * Don't use SVGO to optimize the SVG. Default: `false`
    */
   disableOptimize?: boolean;
+
+  /**
+   * Don't use JSDOM to sanitize the SVG. Always return the raw SVG. Default: `false`
+   * When turned on, the `embedFontCss` and `disableOptimize` options will be ignored.
+   */
+  disableSanitize?: boolean;
 };
 
 /**
@@ -61,6 +67,13 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
   // Patch: Fixes symbols stored in the SOFT HYPHEN character (e.g. \Omega, \otimes) not being rendered
   // Replaces soft hyphens with ¬
   html = html.replaceAll('&#173;', '&#172;');
+
+  // JSDOM may fail to parse the generated SVG if the graph is too complex.
+  // In this case, we can skip the sanitization step and return the raw SVG.
+  // See: https://github.com/prinsss/node-tikzjax/issues/3
+  if (options.disableSanitize) {
+    return html;
+  }
 
   // Fix errors in the generated HTML.
   const container = document.createRange().createContextualFragment(html);
