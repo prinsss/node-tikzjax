@@ -1,0 +1,16 @@
+\begin{document}
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=3.4cm, minimum height=1.5cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[box] (greek) at (0,2.5) {Greek Alphabet\\α + β = γ · θ\\λ · π = Ω};
+  \node[box] (math) at (5.5,2.5) {Operators \& Relations\\x ≤ y ∧ a ≥ b ≠ c\\x ≈ y ± ε};
+  \node[box] (set) at (0,0) {Sets \& Logic\\∀ x ∈ A, x² ≥ 0\\A ∩ B ⊂ A ∪ B};
+  \node[box] (calc) at (5.5,0) {Calculus \& Arrows\\∑ $x_i$ → ∫ f(t) dt\\∂f/∂x ≤ ∞};
+
+  \draw[arrow] (greek) -- (math);
+  \draw[arrow] (set) -- (calc);
+  \draw[arrow] (greek) -- (set);
+  \draw[arrow] (math) -- (calc);
+\end{tikzpicture}
+\end{document}

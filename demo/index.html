@@ -5,33 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>node-tikzjax demo</title>
   <link rel="stylesheet" type="text/css" href="../css/fonts.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      margin: 2rem;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      color: #334155;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 0.25rem;
+      font-size: 1.1rem;
+    }
+    .card p {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: center;
+    }
+    .card object {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
+  <h1>node-tikzjax Demo</h1>
+  <p>Render TikZ diagrams directly to SVG in Node.js with WebAssembly TeX and full Unicode support.</p>
+
+  <h2>Unicode Character Sets (New Support)</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>1. Chinese (中文)</h3>
+      <p>Simplified / Traditional Chinese & CJK punctuation</p>
+      <object type="image/svg+xml" data="./output/unicode1_chinese.svg"></object>
+    </div>
+    <div class="card">
+      <h3>2. Japanese (日本語)</h3>
+      <p>Hiragana, Katakana & Kanji (漢字・ひらがな・カタカナ)</p>
+      <object type="image/svg+xml" data="./output/unicode2_japanese.svg"></object>
+    </div>
+    <div class="card">
+      <h3>3. Korean (한국어)</h3>
+      <p>Hangul syllables and data flow diagrams</p>
+      <object type="image/svg+xml" data="./output/unicode3_korean.svg"></object>
+    </div>
+    <div class="card">
+      <h3>4. Cyrillic (Русский)</h3>
+      <p>Russian alphabet in state machines / automata</p>
+      <object type="image/svg+xml" data="./output/unicode4_cyrillic.svg"></object>
+    </div>
+    <div class="card">
+      <h3>5. Greek & Math Symbols</h3>
+      <p>α, β, γ, θ, λ, π, Ω, ≤, ≥, ≠, ≈, ±, ∑, ∫, ∂, etc.</p>
+      <object type="image/svg+xml" data="./output/unicode5_greek_math.svg"></object>
+    </div>
+    <div class="card">
+      <h3>6. European Latin Accents</h3>
+      <p>Français (é, è, ô), Español (¡, ñ, á), Deutsch (ü, ö, ß), Nordic (ø, å)</p>
+      <object type="image/svg+xml" data="./output/unicode6_latin_accents.svg"></object>
+    </div>
+    <div class="card">
+      <h3>7. Emojis & Symbols</h3>
+      <p>Modern symbols (💻, ⚡, 🔒, ☁, 🚀, ☕, ★, 😊)</p>
+      <object type="image/svg+xml" data="./output/unicode7_emoji_symbols.svg"></object>
+    </div>
+  </div>
+
+  <h2>Standard TikZ Samples</h2>
   <!-- Use object since img tags will ignore font-family on texts. -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; grid-gap: 1em;">
-    <div>
+  <div class="grid">
+    <div class="card">
       <h3>sample1</h3>
+      <p>Function plots with LaTeX formulas</p>
       <object type="image/svg+xml" data="./output/sample1.svg"></object>
     </div>
-    <div>
+    <div class="card">
       <h3>sample2</h3>
+      <p>Geometric shapes and paths</p>
       <object type="image/svg+xml" data="./output/sample2.svg"></object>
     </div>
-    <div>
+    <div class="card">
       <h3>sample3</h3>
+      <p>Coordinate grid and lines</p>
       <object type="image/svg+xml" data="./output/sample3.svg"></object>
     </div>
-    <div>
+    <div class="card">
       <h3>sample4</h3>
+      <p>Complex circuit diagram</p>
       <object type="image/svg+xml" data="./output/sample4.svg"></object>
     </div>
-    <div>
+    <div class="card">
       <h3>sample5</h3>
+      <p>Minimal circular node</p>
       <object type="image/svg+xml" data="./output/sample5.svg"></object>
     </div>
-    <div>
+    <div class="card">
       <h3>sample6</h3>
+      <p>Multi-layered diagram</p>
       <object type="image/svg+xml" data="./output/sample6.svg"></object>
     </div>
+  </div>
 </body>
 </html>

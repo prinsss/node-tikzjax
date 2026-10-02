@@ -6,6 +6,8 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import * as library from './library';
 
+import { generateUnicodePreamble } from './unicode';
+
 declare module 'tar-fs' {
   interface ExtractOptions {
     fs?: IFs;
@@ -86,6 +88,16 @@ export type TeXOptions = {
    * Additional source code to add to the preamble of input. Default: `''`
    */
   addToPreamble?: string;
+
+  /**
+   * Custom mapping of Unicode characters to TeX commands.
+   *
+   * @example
+   * ```js
+   * unicodeMap: { '❤': '\\ensuremath{\\heartsuit}' }
+   * ```
+   */
+  unicodeMap?: Record<string, string>;
 };
 
 /**
@@ -96,7 +108,7 @@ export type TeXOptions = {
  */
 export async function tex(input: string, options: TeXOptions = {}) {
   // Set up the tex input file.
-  const preamble = getTexPreamble(options);
+  const preamble = getTexPreamble(options, input);
   input = preamble + input;
 
   if (options.showConsole) {
@@ -145,15 +157,45 @@ export async function tex(input: string, options: TeXOptions = {}) {
 /**
  * Get preamble of the TeX input file.
  */
-export function getTexPreamble(options: TeXOptions = {}) {
+export function getTexPreamble(options: TeXOptions = {}, input: string = '') {
   let texPackages = options.texPackages ?? {};
 
+  const unicodePreamble = generateUnicodePreamble(
+    input + (options.addToPreamble || ''),
+    options.unicodeMap
+  );
+
+  const mathRobustPreamble =
+    '\\providecommand{\\oldsubseteq}{}\\let\\oldsubseteq\\subseteq\\protected\\def\\subseteq{\\ensuremath{\\oldsubseteq}}\n' +
+    '\\providecommand{\\oldsupseteq}{}\\let\\oldsupseteq\\supseteq\\protected\\def\\supseteq{\\ensuremath{\\oldsupseteq}}\n' +
+    '\\providecommand{\\oldcap}{}\\let\\oldcap\\cap\\protected\\def\\cap{\\ensuremath{\\oldcap}}\n' +
+    '\\providecommand{\\oldcup}{}\\let\\oldcup\\cup\\protected\\def\\cup{\\ensuremath{\\oldcup}}\n' +
+    '\\providecommand{\\oldemptyset}{}\\let\\oldemptyset\\emptyset\\protected\\def\\emptyset{\\ensuremath{\\oldemptyset}}\n' +
+    '\\providecommand{\\oldsubset}{}\\let\\oldsubset\\subset\\protected\\def\\subset{\\ensuremath{\\oldsubset}}\n' +
+    '\\providecommand{\\oldsupset}{}\\let\\oldsupset\\supset\\protected\\def\\supset{\\ensuremath{\\oldsupset}}\n' +
+    '\\providecommand{\\oldin}{}\\let\\oldin\\in\\protected\\def\\in{\\ensuremath{\\oldin}}\n' +
+    '\\providecommand{\\oldnotin}{}\\let\\oldnotin\\notin\\protected\\def\\notin{\\ensuremath{\\oldnotin}}\n' +
+    '\\makeatletter\n' +
+    '\\providecommand{\\oldsqrt}{}\\let\\oldsqrt\\sqrt\n' +
+    '\\protected\\def\\sqrt{\\relax\\ifmmode\\expandafter\\oldsqrt\\else\\expandafter\\text@sqrt\\fi}\n' +
+    '\\def\\text@sqrt{\\@ifnextchar[{\\@text@sqrt}{\\@@text@sqrt}}\n' +
+    '\\def\\@text@sqrt[#1]#2{\\ensuremath{\\oldsqrt[#1]{#2}}}\n' +
+    '\\def\\@@text@sqrt#1{\\ensuremath{\\oldsqrt{#1}}}\n' +
+    '\\makeatother\n' +
+    '\\providecommand{\\tfrac}[2]{{\\textstyle\\frac{#1}{#2}}}\n' +
+    '\\providecommand{\\dfrac}[2]{{\\displaystyle\\frac{#1}{#2}}}\n' +
+    '\\providecommand{\\binom}[2]{{\\textstyle\\left(\\begin{array}{c}#1\\\\#2\\end{array}\\right)}}\n' +
+    '\\providecommand{\\dbinom}[2]{{\\displaystyle\\left(\\begin{array}{c}#1\\\\#2\\end{array}\\right)}}\n' +
+    '\\providecommand{\\tbinom}[2]{{\\textstyle\\left(\\begin{array}{c}#1\\\\#2\\end{array}\\right)}}\n';
+
   const preamble =
+    unicodePreamble +
     Object.entries(texPackages).reduce((usePackageString, thisPackage) => {
       usePackageString +=
         '\\usepackage' + (thisPackage[1] ? `[${thisPackage[1]}]` : '') + `{${thisPackage[0]}}`;
       return usePackageString;
     }, '') +
+    mathRobustPreamble +
     (options.tikzLibraries ? `\\usetikzlibrary{${options.tikzLibraries}}` : '') +
     (options.addToPreamble || '') +
     (options.tikzOptions ? `[${options.tikzOptions}]` : '') +

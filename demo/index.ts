@@ -35,6 +35,13 @@ async function example2() {
     'sample4.tex',
     'sample5.tex',
     'sample6.tex',
+    'unicode1_chinese.tex',
+    'unicode2_japanese.tex',
+    'unicode3_korean.tex',
+    'unicode4_cyrillic.tex',
+    'unicode5_greek_math.tex',
+    'unicode6_latin_accents.tex',
+    'unicode7_emoji_symbols.tex',
   ];
 
   mkdirSync('./demo/output', { recursive: true });

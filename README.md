@@ -88,8 +88,12 @@ const svg = await tex2svg(source, {
   fontCssUrl: 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css',
   // Disable SVG optimization with SVGO. Default: false.
   disableOptimize: false,
+  // Custom mapping of Unicode characters to TeX commands.
+  unicodeMap: { '❤': '\\ensuremath{\\heartsuit}' },
 });
 ```
+
+Unicode characters (such as Chinese, Japanese, Korean, Cyrillic, Greek, mathematical symbols like `≤`, `≥`, `→`, and Emojis) are automatically supported out of the box without manual configuration.
 
 You can also separate the TeX rendering and DVI to SVG conversion steps:
 

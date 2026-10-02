@@ -1,0 +1,15 @@
+\begin{document}
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[block] (input) at (0,0) {데이터 수집};
+  \node[block] (process) at (3.5,0) {인공지능 모델\\학습 및 추론};
+  \node[block] (output) at (7,0) {결과 시각화};
+  \node[block] (storage) at (3.5,-2) {클라우드 저장소};
+
+  \draw[arrow] (input) -- node[above] {전송} (process);
+  \draw[arrow] (process) -- node[above] {생성} (output);
+  \draw[arrow] (process) -- node[right] {동기화} (storage);
+\end{tikzpicture}
+\end{document}

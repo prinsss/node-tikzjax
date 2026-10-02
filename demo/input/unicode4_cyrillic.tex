@@ -1,0 +1,15 @@
+\begin{document}
+\begin{tikzpicture}[
+  state/.style={circle, draw, minimum size=1.4cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[state] (start) at (0,0) {Старт};
+  \node[state] (wait) at (3.5,0) {Анализ};
+  \node[state, double] (done) at (7,0) {Успех};
+
+  \draw[arrow] (-1.2,0) -- (start);
+  \draw[arrow] (start) -- node[above] {Запрос} (wait);
+  \draw[arrow] (wait) -- node[above] {Готово} (done);
+  \draw[arrow] (wait) to[bend left=45] node[below] {Повтор} (start);
+\end{tikzpicture}
+\end{document}

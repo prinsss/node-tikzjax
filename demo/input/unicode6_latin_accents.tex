@@ -1,0 +1,21 @@
+\begin{document}
+\begin{tikzpicture}[
+  node/.style={draw, rounded corners, fill=green!5, minimum width=3cm, minimum height=1cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[node] (root) at (4,3.2) {Langues d'Europe\\« Multilingue »};
+
+  \node[node] (fr) at (0,1.6) {Français\\Élève \& Hôpital};
+  \node[node] (es) at (4,1.6) {Español\\¡Mañana habrá fiesta!};
+  \node[node] (de) at (8,1.6) {Deutsch\\Große Grüße \& Übung};
+
+  \node[node] (nordic) at (2,-0.2) {Nordic Languages\\København \& Malmö};
+  \node[node] (pt) at (6,-0.2) {Português\\Coração \& Ação};
+
+  \draw[arrow] (root) -- (fr);
+  \draw[arrow] (root) -- (es);
+  \draw[arrow] (root) -- (de);
+  \draw[arrow] (es) -- (nordic);
+  \draw[arrow] (es) -- (pt);
+\end{tikzpicture}
+\end{document}

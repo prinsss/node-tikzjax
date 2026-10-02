@@ -1,0 +1,15 @@
+\begin{document}
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, minimum width=2.6cm, minimum height=1cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[box] (client) at (0,2) {ユーザー\\(利用者)};
+  \node[box] (server) at (4,2) {サーバー\\(処理エンジン)};
+  \node[box] (db) at (8,2) {データベース\\(情報保存)};
+  \node[box] (cache) at (4,0) {高速キャッシュ\\(一時記憶)};
+
+  \draw[arrow] (client) -- node[above] {リクエスト} (server);
+  \draw[arrow] (server) -- node[above] {クエリ} (db);
+  \draw[arrow] (server) -- node[right] {参照} (cache);
+\end{tikzpicture}
+\end{document}

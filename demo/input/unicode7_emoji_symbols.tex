@@ -1,0 +1,15 @@
+\begin{document}
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=1.1cm, align=center},
+  arrow/.style={->, >=stealth, thick}
+]
+  \node[box, fill=orange!10] (client) at (0,2) {💻 Client\\User App 😊};
+  \node[box, fill=yellow!10] (gateway) at (4,2) {⚡ API Gateway\\Security 🔒};
+  \node[box, fill=cyan!10] (cloud) at (8,2) {☁ Cloud Server\\Microservices 🚀};
+  \node[box, fill=purple!10] (analytics) at (4,0) {☕ Background Jobs\\Analytics ★};
+
+  \draw[arrow] (client) -- node[above] {HTTPS} (gateway);
+  \draw[arrow] (gateway) -- node[above] {gRPC} (cloud);
+  \draw[arrow] (gateway) -- node[right] {Events} (analytics);
+\end{tikzpicture}
+\end{document}

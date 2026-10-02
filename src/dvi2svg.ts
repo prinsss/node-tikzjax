@@ -1,16 +1,23 @@
 import { createHash } from 'crypto';
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import { dvi2html } from '@prinsss/dvi2html';
 import { JSDOM } from 'jsdom';
 import { optimize } from 'svgo';
 
+import { restoreUnicodeInSvg } from './unicode';
+
 export type SvgOptions = {
   /**
-   * Whether to embed the font CSS file in the SVG. Default: `false`
+   * Whether to embed the font CSS in the SVG.
+   * - `false`: Don't embed font CSS (default)
+   * - `true` or `'base64'` or `'inline'`: Embed base64 font data for fonts used in the SVG (self-contained, works completely offline)
+   * - `'link'`: Embed `<style>@import url('...');</style>` pointing to `fontCssUrl`
    */
-  embedFontCss?: boolean;
+  embedFontCss?: boolean | 'base64' | 'inline' | 'link';
 
   /**
-   * The URL of the font CSS file to embed.
+   * The URL of the font CSS file to embed when `embedFontCss` is `'link'`.
    * Default: `https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css`
    */
   fontCssUrl?: string;
@@ -68,6 +75,9 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
   // Replaces soft hyphens with ¬
   html = html.replaceAll('&#173;', '&#172;');
 
+  // Restore Unicode characters from placeholders
+  html = restoreUnicodeInSvg(html);
+
   // JSDOM may fail to parse the generated SVG if the graph is too complex.
   // In this case, we can skip the sanitization step and return the raw SVG.
   // See: https://github.com/prinsss/node-tikzjax/issues/3
@@ -83,11 +93,44 @@ export async function dvi2svg(dvi: Buffer, options: SvgOptions = {}) {
     const defs = document.createElement('defs');
     const style = document.createElement('style');
 
-    const fontCssUrl =
-      options.fontCssUrl ?? 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css';
-    style.textContent = `@import url('${fontCssUrl}');`;
-    defs.appendChild(style);
-    svg.prepend(defs);
+    if (
+      options.embedFontCss === 'link' ||
+      (typeof options.embedFontCss === 'boolean' && options.fontCssUrl)
+    ) {
+      const fontCssUrl =
+        options.fontCssUrl ?? 'https://cdn.jsdelivr.net/npm/node-tikzjax@latest/css/fonts.css';
+      style.textContent = `@import url('${fontCssUrl}');`;
+    } else {
+      // Embed Base64 TTF fonts for font families used in the SVG
+      let fontCssRules = '';
+      const fontFamilies = new Set<string>();
+      const fontRegex = /font-family="([^",\s]+)/g;
+      let fontMatch: RegExpExecArray | null;
+      while ((fontMatch = fontRegex.exec(svg.outerHTML)) !== null) {
+        if (fontMatch[1]) {
+          fontFamilies.add(fontMatch[1]);
+        }
+      }
+
+      for (const font of fontFamilies) {
+        const fontFile = join(__dirname, '../css/bakoma/ttf', `${font}.ttf`);
+        if (existsSync(fontFile)) {
+          const fontData = readFileSync(fontFile).toString('base64');
+          fontCssRules += `@font-face { font-family: ${font}; src: url('data:font/truetype;charset=utf-8;base64,${fontData}') format('truetype'); }\n`;
+        }
+      }
+
+      if (fontCssRules) {
+        style.textContent = fontCssRules;
+      } else if (options.fontCssUrl) {
+        style.textContent = `@import url('${options.fontCssUrl}');`;
+      }
+    }
+
+    if (style.textContent) {
+      defs.appendChild(style);
+      svg.prepend(defs);
+    }
   }
 
   if (options.disableOptimize) {

@@ -3,6 +3,7 @@ import { SvgOptions, dvi2svg } from './dvi2svg';
 
 export * from './bootstrap';
 export * from './dvi2svg';
+export * from './unicode';
 
 /**
  * Compiles TeX source code to SVG image.

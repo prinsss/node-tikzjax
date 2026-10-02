@@ -1,0 +1,15 @@
+\begin{document}
+\begin{tikzpicture}[every node/.style={draw, rounded corners, minimum height=1cm, minimum width=2.5cm, align=center}]
+  \node (start) at (0,0) {开始};
+  \node (process) at (3.5,0) {处理数据};
+  \node (decide) at (7,0) {判断结果};
+  \node (yes) at (7,-2) {输出成功};
+  \node (no) at (10.5,0) {重试};
+
+  \draw[->] (start) -- (process);
+  \draw[->] (process) -- (decide);
+  \draw[->] (decide) -- node[draw=none, minimum height=0, minimum width=0, right] {是} (yes);
+  \draw[->] (decide) -- node[draw=none, minimum height=0, minimum width=0, above] {否} (no);
+  \draw[->] (no) -- ++(0,1.2) -| (process);
+\end{tikzpicture}
+\end{document}
